@@ -107,12 +107,12 @@ class Chesspiece(pygame.sprite.Sprite):
                     cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].image.fill(CHESS_COLOR["Promotion"])    
                 movableList.append((cell_x, cell_y - 1))
             
-            # diagonal direction
+            # en passant
             if self.en_passant >= 0:
                 en_passant_x, en_passant_y = getCell((existing_chess[enemy_color][self.en_passant].rect.x, existing_chess[enemy_color][self.en_passant].rect.y))
                 cells[CELL_Col_Cnt * (en_passant_y - 1) + en_passant_x].image.fill(CHESS_COLOR["Enemy"])
                 movableList.append((en_passant_x, en_passant_y - 1))
-
+            # diagonal direction
             for chess in existing_chess[enemy_color]:
                 enemy_x, enemy_y = getCell((chess.rect.x, chess.rect.y))
                 if abs(enemy_x - cell_x) == 1 and cell_y - enemy_y == 1:
@@ -229,3 +229,5 @@ def flipBoard(cells:Sequence["BoardCell"], existing_chess:Mapping[str, Sequence[
             cells[CELL_Col_Cnt * row + i].state, cells[(CELL_Row_Cnt - row - 1) * CELL_Col_Cnt + i].state = cells[(CELL_Row_Cnt - row - 1) * CELL_Col_Cnt + i].state, cells[CELL_Col_Cnt * row + i].state
     return
 
+def pawn_Promotion(pawn:["Chesspiece"]) -> None:
+    pass

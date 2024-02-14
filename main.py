@@ -173,13 +173,16 @@ while running:
                             chess.en_passant = Pawn_EnPassant["Loss Chance"]
 
                 existing_chess[current_move][choice].move(cell_x, cell_y, cells)
+                if existing_chess[current_move][choice].chesskind == "Pawn" and cell_y == 0:
+                    pawn_Promotion(existing_chess[current_move][choice])
+
+
                 renew_choice()
                 if current_move == "White":
                     current_move = "Black"
                 else:
-                    renew_choice()
                     current_move = "White"
-
+                
                 flipBoard(cells, existing_chess)
             else:
                 # when choice is not -1, then put the chessman down
