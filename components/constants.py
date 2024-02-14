@@ -1,6 +1,3 @@
-import os
-import pygame
-
 
 
 # windows constants
@@ -14,7 +11,8 @@ GRAY = (125, 125, 125)
 GREEN = (0, 110, 0)
 Freash_Green = (99,211,108)
 RED = (255, 0, 0)
-YELLOW = (255, 195, 211)
+YELLOW = (240,230,140)
+BLUE = (30,144,255)
 
 # board cell 
 CELL_SideLength = 80
@@ -46,11 +44,18 @@ CHESSMOVE = {
     "Bishop": [UpLeft, UpRight, DownLeft, DownRight],
     "Knight": [[[-1, -2]], [[-2, -1]], [[1, -2]], [[2, -1]], [[1, 2]], [[2, 1]], [[-2, 1]], [[-1, 2]]]
 } # Pawn will be as a exception case
+Pawn_Move = {
+    "Forward": [(0, -1)],
+    "Eat": [(-1, -1), (1, -1)],
+    "Side": [(-1, 0), (1, 0)] # This is for en_passant
+}
+
 
 CHESS_COLOR = {
     "Enemy": RED,
     "Space": GRAY,
-    "Castling":YELLOW
+    "Castling":YELLOW,
+    "Promotion":BLUE
 }
 
 CastlingMOVE = {

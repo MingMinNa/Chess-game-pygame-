@@ -28,6 +28,10 @@ class Chesspiece(pygame.sprite.Sprite):
         
         # chesskind: [King, Queen, Knight, Rook, Bishop, Pawn]
         self.chesskind = chesskind
+        if self.chesskind == "Pawn":
+            # Pawn unique attribute
+            self.en_passant = None # This will store enemy Pawn index that you can eat it by en_passant
+            self.two_step = False
 
         # if state is Up => show the cells which this chessman can move
         # (Like you take the chessman up, and this will show which position you can put it on)
@@ -39,24 +43,24 @@ class Chesspiece(pygame.sprite.Sprite):
         cells[cell_x  + cell_y * CELL_Col_Cnt].state = TEAM[team]
 
     # when you click the mouse button, test whether this chessman is pointed by mouse cursor
-    def mouseTouch(self, mouse_pos: Tuple[int], cells:Sequence["BoardCell"],castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]]) -> Optional[list[Tuple[int]]]: # true: success, false: fail
+    def mouseTouch(self, mouse_pos: Tuple[int], cells:Sequence["BoardCell"],castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]], existing_chess:Mapping[str, Sequence["Chesspiece"]]) -> Optional[list[Tuple[int]]]: # true: success, false: fail
         x, y = mouse_pos
         if (self.rect.x <= x and x <= self.rect.x + CHESS_SideLength) and \
            (self.rect.y <= y and y <= self.rect.y + CHESS_SideLength):
             # you click it, then there will be two results
             # see "click" member function for more detail 
-            return self.click(cells, castling, enemy_attack)
+            return self.click(cells, castling, enemy_attack, existing_chess)
         
         return None
 
-    def click(self, cells:Sequence["BoardCell"], castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]]) -> Optional[list[Tuple[int]]]:
+    def click(self, cells:Sequence["BoardCell"], castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]], existing_chess:Mapping[str, Sequence["Chesspiece"]]) -> Optional[list[Tuple[int]]]:
         # after you click the chessman
         # if the chessman is Down, pick it up and find the movable positions(then show).
         # if the chessman is Up, put it down and cancel the moval hint.
         if self.state == CHESS_STATE["Down"]:
             self.placeUp()
             # find the movable positions
-            return self.showMovable(cells, castling, enemy_attack)
+            return self.showMovable(cells, castling, enemy_attack, existing_chess)
         else:
             self.placeDown()
             # cancel the moval hint
@@ -74,39 +78,65 @@ class Chesspiece(pygame.sprite.Sprite):
         if self.state == CHESS_STATE["Down"]:
             self.state = CHESS_STATE["Up"]
             self.rect.y -= 10
-
-    
-    def showMovable(self, cells:Sequence["BoardCell"], castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]]) -> list[Tuple[int]]:
+ 
+    def showMovable(self, cells:Sequence["BoardCell"], castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]], existing_chess:Mapping[str, Sequence["Chesspiece"]]) -> list[Tuple[int]]:
         # First, recover the cell color to avoid other chessman hint affecting our result
         boardCellRecover(cells)
+
+        enemy_color = "White" if self.team == TEAM["Black"] else "Black"
+        teamColor = "White" if self.team  == TEAM["White"]  else "Black"
 
         cell_x, cell_y = getCell((self.rect.x, self.rect.y))
 
         movableList = []
         # since Pawn have more complicated rule such as "promotion" and "en passant", I will see it as an exception case
         if self.chesskind == "Pawn":
+
             cell_x, cell_y = getCell((self.rect.x, self.rect.y))
+            # First Step: Go Forward 
+            if cell_y == CELL_Col_Cnt - 2:
+                for i in range(1, 3):
+                    if cells[CELL_Col_Cnt * (cell_y - i) + cell_x].state != self.team:
+                        cells[CELL_Col_Cnt * (cell_y - i) + cell_x].image.fill(CHESS_COLOR["Space"])
+                        movableList.append((cell_x, cell_y - i))
+                    else:
+                        break
+            elif cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].state == CELL_STATE["Nothing"]:
+                cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].image.fill(CHESS_COLOR["Space"])
+                if cell_y == 1:
+                    cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].image.fill(CHESS_COLOR["Promotion"])    
+                movableList.append((cell_x, cell_y - 1))
+            
+            # diagonal direction
+            if self.en_passant is not None:
+                en_passant_x, en_passant_y = getCell((existing_chess[enemy_color][self.en_passant].rect.x, existing_chess[enemy_color][self.en_passant].rect.y - CELL_SideLength))
+                cells[CELL_Col_Cnt * (en_passant_y - 1) + en_passant_x].image.fill(CHESS_COLOR["Enemy"])
+                movableList.append((en_passant_x, en_passant_y))
+
+            for chess in existing_chess[enemy_color]:
+                enemy_x, enemy_y = getCell((chess.rect.x, chess.rect.y))
+                if abs(enemy_x - cell_x) == 1 and cell_y - enemy_y == 1:
+                    cells[CELL_Col_Cnt * enemy_y + enemy_x].image.fill(CHESS_COLOR["Enemy"])
+                    movableList.append((enemy_x, enemy_y)) 
+             
             return movableList
         # castling hint is for king moval
-        teamColor = "White" if TEAM["White"] == self.team else "Black"
         if self.chesskind == "King" and castling[teamColor][1] and (cell_x, cell_y) not in enemy_attack:
             leftRook, rightRook = castling[teamColor][0], castling[teamColor][2]
-            # print(leftRook, rightRook)
+
             # check whether other chessman is on the path from leftRook to King 
             for i in range(1, 3):
                 if cells[CELL_Col_Cnt * (CELL_Row_Cnt - 1) + i].state != CELL_STATE["Nothing"] or (i, CELL_Row_Cnt -1) in enemy_attack:
                     leftRook = False
                     break
-            # print(leftRook, rightRook)
             # check whether other chessman is on the path from King to rightRook 
-
             if CastlingMOVE["Long"]["King"] in enemy_attack or CastlingMOVE["Long"]["Rook"] in enemy_attack:
                 rightRook = False
             for i in range(4, CELL_Col_Cnt - 1):
                 if cells[CELL_Col_Cnt * (CELL_Col_Cnt - 1) + i].state != CELL_STATE["Nothing"]:
                     rightRook = False
                     break
-            # print(leftRook, rightRook)
+
             if leftRook:
                 # short castling
                 cells[(CELL_Row_Cnt - 1) * CELL_Col_Cnt + 1].image.fill(CHESS_COLOR["Castling"])
@@ -115,13 +145,15 @@ class Chesspiece(pygame.sprite.Sprite):
                 # long castling
                 cells[(CELL_Row_Cnt - 1) * CELL_Col_Cnt + 5].image.fill(CHESS_COLOR["Castling"])
                 movableList.append((5,  CELL_Row_Cnt - 1))
+        
         # other chessman will use default direction(in constants.py) to move 
         for dir in CHESSMOVE[self.chesskind]:
             for dir_x, dir_y in dir:
                 pos_x, pos_y =  cell_x + dir_x, cell_y + dir_y
-                if pos_x < 0 or pos_x >= 8 or pos_y < 0 or pos_y >= 8:
+                if pos_x < 0 or pos_x >= 8 or pos_y < 0 or pos_y >= 8 or \
+                ((pos_x, pos_y) in enemy_attack and self.chesskind == "King"):
                     continue
-
+                
                 if cells[pos_y * CELL_Col_Cnt + pos_x].state == CELL_STATE["Nothing"]:
                     cells[pos_y * CELL_Col_Cnt + pos_x].image.fill(CHESS_COLOR["Space"])
                     movableList.append((pos_x, pos_y))

@@ -35,12 +35,12 @@ def renew_choice():
 # and it will return whether you pick the chessman
 # True: you pick the chessman => variable "choice" is the chessman index in black(white)_chess and "move_area" will be updated
 def choose_chesspiece() -> None:
-    global choice, move_area, mouse_pos, enemy_attack_area
+    global choice, move_area, mouse_pos, enemy_attack_area, existing_chess
     renew_choice()
     boardCellRecover(cells)
     
     for chess in existing_chess[current_move]:
-        ret = chess.mouseTouch(mouse_pos, cells, chess_castling, enemy_attack_area)
+        ret = chess.mouseTouch(mouse_pos, cells, chess_castling, enemy_attack_area, existing_chess)
         if ret is None:
             chess.placeDown()
         else: 
@@ -135,9 +135,12 @@ while running:
             
             # You have chosen the chessman and click the next moval position
             if choice != -1 and len(move_area) != 0 and (cell_x, cell_y) in move_area:
+                # If the cell you click has enemy, kill it
                 if cells[cell_x + cell_y * CELL_Col_Cnt].state != CELL_STATE["Nothing"]:
                     killEnemy(current_move, move_area, (cell_x, cell_y))
                 
+
+                # Castling Check
                 if existing_chess[current_move][choice].chesskind == "King":
                     checkCastlingClick(existing_chess, cells, (cell_x, cell_y))
                     chess_castling[current_move][1] = False
