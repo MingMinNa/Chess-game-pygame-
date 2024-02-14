@@ -14,6 +14,7 @@ GRAY = (125, 125, 125)
 GREEN = (0, 110, 0)
 Freash_Green = (99,211,108)
 RED = (255, 0, 0)
+YELLOW = (255, 195, 211)
 
 # board cell 
 CELL_SideLength = 80
@@ -24,14 +25,6 @@ CELL_STATE = {"Nothing":2 , "White":0, "Black": 1}
 CELL_COLOR_COPY = []
 
 # chessPieces
-# CHESSMAP = {
-#     "King":  0,
-#     "Queen": 1,
-#     "Rook":  2,
-#     "Bishop":3,
-#     "Knight":4,
-#     "Pawn":  5
-# }
 
 CHESS_SideLength = 60
 CHESS_STATE = {"Up":0 , "Down": 1}
@@ -56,5 +49,21 @@ CHESSMOVE = {
 
 CHESS_COLOR = {
     "Enemy": RED,
-    "Space": GRAY
+    "Space": GRAY,
+    "Castling":YELLOW
+}
+
+CastlingMOVE = {
+    "Short":{
+        "Original_King":(3, CELL_Row_Cnt - 1),
+        "Original_Rook":(0, CELL_Row_Cnt - 1),
+        "King":(1, CELL_Row_Cnt - 1),
+        "Rook":(2, CELL_Row_Cnt - 1)
+    },
+    "Long":{
+        "Original_King":(3, CELL_Row_Cnt - 1),
+        "Original_Rook":(CELL_Col_Cnt - 1, CELL_Row_Cnt - 1),
+        "King":(5, CELL_Row_Cnt - 1),
+        "Rook":(4, CELL_Row_Cnt - 1)
+    }
 }

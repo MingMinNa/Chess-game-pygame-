@@ -39,24 +39,24 @@ class Chesspiece(pygame.sprite.Sprite):
         cells[cell_x  + cell_y * CELL_Col_Cnt].state = TEAM[team]
 
     # when you click the mouse button, test whether this chessman is pointed by mouse cursor
-    def mouseTouch(self, mouse_pos: Tuple[int], cells:Sequence["BoardCell"],castling:Mapping[str, list[bool]]) -> Optional[list[Tuple[int]]]: # true: success, false: fail
+    def mouseTouch(self, mouse_pos: Tuple[int], cells:Sequence["BoardCell"],castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]]) -> Optional[list[Tuple[int]]]: # true: success, false: fail
         x, y = mouse_pos
         if (self.rect.x <= x and x <= self.rect.x + CHESS_SideLength) and \
            (self.rect.y <= y and y <= self.rect.y + CHESS_SideLength):
             # you click it, then there will be two results
             # see "click" member function for more detail 
-            return self.click(cells, castling)
+            return self.click(cells, castling, enemy_attack)
         
         return None
 
-    def click(self, cells:Sequence["BoardCell"], castling:Mapping[str, list[bool]]) -> Optional[list[Tuple[int]]]:
+    def click(self, cells:Sequence["BoardCell"], castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]]) -> Optional[list[Tuple[int]]]:
         # after you click the chessman
         # if the chessman is Down, pick it up and find the movable positions(then show).
         # if the chessman is Up, put it down and cancel the moval hint.
         if self.state == CHESS_STATE["Down"]:
             self.placeUp()
             # find the movable positions
-            return self.showMovable(cells, castling)
+            return self.showMovable(cells, castling, enemy_attack)
         else:
             self.placeDown()
             # cancel the moval hint
@@ -76,7 +76,7 @@ class Chesspiece(pygame.sprite.Sprite):
             self.rect.y -= 10
 
     
-    def showMovable(self, cells:Sequence["BoardCell"], castling:Mapping[str, list[bool]]) -> list[Tuple[int]]:
+    def showMovable(self, cells:Sequence["BoardCell"], castling:Mapping[str, list[bool]], enemy_attack: list[Tuple[int]]) -> list[Tuple[int]]:
         # First, recover the cell color to avoid other chessman hint affecting our result
         boardCellRecover(cells)
 
@@ -89,9 +89,32 @@ class Chesspiece(pygame.sprite.Sprite):
             return movableList
         # castling hint is for king moval
         teamColor = "White" if TEAM["White"] == self.team else "Black"
-        if self.chesskind == "King" and castling[teamColor][1]:
+        if self.chesskind == "King" and castling[teamColor][1] and (cell_x, cell_y) not in enemy_attack:
             leftRook, rightRook = castling[teamColor][0], castling[teamColor][2]
-            
+            # print(leftRook, rightRook)
+            # check whether other chessman is on the path from leftRook to King 
+            for i in range(1, 3):
+                if cells[CELL_Col_Cnt * (CELL_Row_Cnt - 1) + i].state != CELL_STATE["Nothing"] or (i, CELL_Row_Cnt -1) in enemy_attack:
+                    leftRook = False
+                    break
+            # print(leftRook, rightRook)
+            # check whether other chessman is on the path from King to rightRook 
+
+            if CastlingMOVE["Long"]["King"] in enemy_attack or CastlingMOVE["Long"]["Rook"] in enemy_attack:
+                rightRook = False
+            for i in range(4, CELL_Col_Cnt - 1):
+                if cells[CELL_Col_Cnt * (CELL_Col_Cnt - 1) + i].state != CELL_STATE["Nothing"]:
+                    rightRook = False
+                    break
+            # print(leftRook, rightRook)
+            if leftRook:
+                # short castling
+                cells[(CELL_Row_Cnt - 1) * CELL_Col_Cnt + 1].image.fill(CHESS_COLOR["Castling"])
+                movableList.append((1, CELL_Row_Cnt - 1))
+            if rightRook:
+                # long castling
+                cells[(CELL_Row_Cnt - 1) * CELL_Col_Cnt + 5].image.fill(CHESS_COLOR["Castling"])
+                movableList.append((5,  CELL_Row_Cnt - 1))
         # other chessman will use default direction(in constants.py) to move 
         for dir in CHESSMOVE[self.chesskind]:
             for dir_x, dir_y in dir:
