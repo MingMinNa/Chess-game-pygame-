@@ -44,12 +44,10 @@ CHESSMOVE = {
     "Bishop": [UpLeft, UpRight, DownLeft, DownRight],
     "Knight": [[[-1, -2]], [[-2, -1]], [[1, -2]], [[2, -1]], [[1, 2]], [[2, 1]], [[-2, 1]], [[-1, 2]]]
 } # Pawn will be as a exception case
-Pawn_Move = {
-    "Forward": [(0, -1)],
-    "Eat": [(-1, -1), (1, -1)],
-    "Side": [(-1, 0), (1, 0)] # This is for en_passant
+Pawn_EnPassant = {
+    "None": -1,
+    "Loss Chance": -2
 }
-
 
 CHESS_COLOR = {
     "Enemy": RED,
@@ -57,7 +55,6 @@ CHESS_COLOR = {
     "Castling":YELLOW,
     "Promotion":BLUE
 }
-
 CastlingMOVE = {
     "Short":{
         "Original_King":(3, CELL_Row_Cnt - 1),
@@ -72,3 +69,4 @@ CastlingMOVE = {
         "Rook":(4, CELL_Row_Cnt - 1)
     }
 }
+

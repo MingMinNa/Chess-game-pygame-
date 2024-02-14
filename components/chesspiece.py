@@ -30,8 +30,8 @@ class Chesspiece(pygame.sprite.Sprite):
         self.chesskind = chesskind
         if self.chesskind == "Pawn":
             # Pawn unique attribute
-            self.en_passant = None # This will store enemy Pawn index that you can eat it by en_passant
-            self.two_step = False
+            # This will store enemy Pawn index that you can eat it by en_passant
+            self.en_passant = Pawn_EnPassant["None"] 
 
         # if state is Up => show the cells which this chessman can move
         # (Like you take the chessman up, and this will show which position you can put it on)
@@ -96,7 +96,7 @@ class Chesspiece(pygame.sprite.Sprite):
             # First Step: Go Forward 
             if cell_y == CELL_Col_Cnt - 2:
                 for i in range(1, 3):
-                    if cells[CELL_Col_Cnt * (cell_y - i) + cell_x].state != self.team:
+                    if cells[CELL_Col_Cnt * (cell_y - i) + cell_x].state == CELL_STATE["Nothing"]:
                         cells[CELL_Col_Cnt * (cell_y - i) + cell_x].image.fill(CHESS_COLOR["Space"])
                         movableList.append((cell_x, cell_y - i))
                     else:
@@ -108,10 +108,10 @@ class Chesspiece(pygame.sprite.Sprite):
                 movableList.append((cell_x, cell_y - 1))
             
             # diagonal direction
-            if self.en_passant is not None:
-                en_passant_x, en_passant_y = getCell((existing_chess[enemy_color][self.en_passant].rect.x, existing_chess[enemy_color][self.en_passant].rect.y - CELL_SideLength))
+            if self.en_passant >= 0:
+                en_passant_x, en_passant_y = getCell((existing_chess[enemy_color][self.en_passant].rect.x, existing_chess[enemy_color][self.en_passant].rect.y))
                 cells[CELL_Col_Cnt * (en_passant_y - 1) + en_passant_x].image.fill(CHESS_COLOR["Enemy"])
-                movableList.append((en_passant_x, en_passant_y))
+                movableList.append((en_passant_x, en_passant_y - 1))
 
             for chess in existing_chess[enemy_color]:
                 enemy_x, enemy_y = getCell((chess.rect.x, chess.rect.y))

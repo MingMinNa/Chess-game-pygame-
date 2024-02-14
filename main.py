@@ -100,7 +100,6 @@ def calculate_EnemyAttackArea(enemy_attack_area:list[Tuple[int]], existing_chess
     
     del ChessMove
 
-
 def checkCastlingClick( existing_chess: Mapping[str, Sequence["Chesspiece"]], cells:Sequence["BoardCell"], mouse_cell_pos:Tuple[int]) -> None:
     if mouse_cell_pos not in CastlingMOVE["Short"]["King"] and \
        mouse_cell_pos  not in CastlingMOVE["Long"]["King"]:
@@ -122,6 +121,7 @@ def checkCastlingClick( existing_chess: Mapping[str, Sequence["Chesspiece"]], ce
                 continue
             existing_chess[current_move][RootIdx].move(cell_x = CastlingMOVE[dist]["Rook"][0], cell_y = CastlingMOVE[dist]["Rook"][1], cells = cells)
 
+
 while running:
 
     clock.tick(FPS)
@@ -132,25 +132,45 @@ while running:
             calculate_EnemyAttackArea(enemy_attack_area, existing_chess, current_move, cells)
             mouse_pos = pygame.mouse.get_pos()
             cell_x, cell_y = getCell(mouse_pos)
-            
             # You have chosen the chessman and click the next moval position
             if choice != -1 and len(move_area) != 0 and (cell_x, cell_y) in move_area:
-                # If the cell you click has enemy, kill it
+               
+                
+                if existing_chess[current_move][choice].chesskind == "Pawn":
+                    pawn_cell_x, pawn_cell_y = getCell((existing_chess[current_move][choice].rect.x, existing_chess[current_move][choice].rect.y))
+                    # The first case is en passant
+                        # en_passant >= 0 => Not "None" and "Loss chance"
+                    if  existing_chess[current_move][choice].en_passant >= 0 and \
+                        abs(cell_x - pawn_cell_x) == 1 and \
+                        cells[cell_x  + CELL_Col_Cnt * cell_y].state == CELL_STATE["Nothing"]:
+                        killEnemy(current_move, move_area, (cell_x, cell_y + 1))
+                    # The second case: first step (move 2 cell) => then we set the left(right) enemy pawn en_passant (if any)
+                    elif abs(pawn_cell_y - cell_y) == 2:
+                        enemy_color = "White" if current_move == "Black" else "Black"
+                        for chess in existing_chess[enemy_color]:
+                            enemy_x, enemy_y = getCell((chess.rect.x, chess.rect.y))
+                            if chess.chesskind == "Pawn" and abs(enemy_x - cell_x) == 1 and enemy_y == cell_y:
+                                chess.en_passant = choice
+
+                 # If the cell you click has enemy, kill it
                 if cells[cell_x + cell_y * CELL_Col_Cnt].state != CELL_STATE["Nothing"]:
                     killEnemy(current_move, move_area, (cell_x, cell_y))
-                
 
-                # Castling Check
+                # Castling handling
                 if existing_chess[current_move][choice].chesskind == "King":
                     checkCastlingClick(existing_chess, cells, (cell_x, cell_y))
                     chess_castling[current_move][1] = False
-
                 elif existing_chess[current_move][choice].chesskind == "Rook":
                     current_cell_x , current_cell_y = getCell((existing_chess[current_move][choice].rect.x, existing_chess[current_move][choice].rect.y))
                     if (current_cell_x, current_cell_y) == (0, CELL_Row_Cnt - 1):
                         chess_castling[current_move][0] = False
                     elif (current_cell_x, current_cell_y) == (CELL_Col_Cnt - 1, CELL_Row_Cnt - 1):
                         chess_castling[current_move][2] = False
+
+                for chess in existing_chess[current_move]:
+                    if chess.chesskind == "Pawn":
+                        if chess.en_passant >= 0:
+                            chess.en_passant = Pawn_EnPassant["Loss Chance"]
 
                 existing_chess[current_move][choice].move(cell_x, cell_y, cells)
                 renew_choice()
