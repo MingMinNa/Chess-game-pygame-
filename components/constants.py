@@ -13,6 +13,7 @@ Freash_Green = (99,211,108)
 RED = (255, 0, 0)
 YELLOW = (240,230,140)
 BLUE = (30,144,255)
+TRANSPARENT = (0, 0, 0, 0)
 
 # board cell 
 CELL_SideLength = 80
@@ -70,3 +71,9 @@ CastlingMOVE = {
     }
 }
 
+
+# promotion panel
+PANEL_WIDTH = 400
+PANEL_HEIGHT = 250
+PANEL_INIT_X = 150
+PANEL_INIT_Y = 225

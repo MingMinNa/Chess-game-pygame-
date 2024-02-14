@@ -3,7 +3,8 @@ from typing import Sequence
 from components.constants import *
 from components.boardcell import *
 from components.chesspiece import *
-
+from components.promotionPanel import *
+import os
 
 # process control
 pygame.init()
@@ -13,16 +14,34 @@ clock = pygame.time.Clock()
 running = True
 current_move = "White"
 
+# load image
+chessman_img = {"Black":dict(), "White":dict()}
+chessman_img["Black"]["King"] = pygame.image.load(os.path.join("img", "King.png")).convert()
+chessman_img["Black"]["Queen"] = pygame.image.load(os.path.join("img", "Queen.png")).convert()
+chessman_img["Black"]["Pawn"] = pygame.image.load(os.path.join("img", "Pawn.png")).convert()
+chessman_img["Black"]["Knight"] = pygame.image.load(os.path.join("img", "Knight.png")).convert()
+chessman_img["Black"]["Bishop"] = pygame.image.load(os.path.join("img", "Bishop.png")).convert()
+chessman_img["Black"]["Rook"] = pygame.image.load(os.path.join("img", "Rook.png")).convert()
 
-# chessboard spawn ("cells" is a List)
-boardcell_sprite, cells = chessBoardGenerate()
-chess_sprite, existing_chess = chessPiecesGenerate(cells)
+chessman_img["White"]["King"] = pygame.image.load(os.path.join("img", "King2.png")).convert()
+chessman_img["White"]["Queen"] = pygame.image.load(os.path.join("img", "Queen2.png")).convert()
+chessman_img["White"]["Pawn"] = pygame.image.load(os.path.join("img", "Pawn2.png")).convert()
+chessman_img["White"]["Knight"] = pygame.image.load(os.path.join("img", "Knight2.png")).convert()
+chessman_img["White"]["Bishop"] = pygame.image.load(os.path.join("img", "Bishop2.png")).convert()
+chessman_img["White"]["Rook"] = pygame.image.load(os.path.join("img", "Rook2.png")).convert()
 
-choice = -1
-move_area = []
-# check whether you have moved the chessman(or alive): [Left Rook, King, Right Rook]
-chess_castling = {"White": [True, True, True], "Black": [True, True, True]}
-enemy_attack_area = []
+def game_init() -> None:
+    # chessboard spawn ("cells" is a List)
+    global boardcell_sprite, cells, chess_sprite, existing_chess,panel_sprite, choice, move_area, chess_castling, enemy_attack_area
+    boardcell_sprite, cells = chessBoardGenerate()
+    chess_sprite, existing_chess = chessPiecesGenerate(cells, chessman_img)
+
+
+    choice = -1
+    move_area = []
+    # check whether you have moved the chessman(or alive): [Left Rook, King, Right Rook]
+    chess_castling = {"White": [True, True, True], "Black": [True, True, True]}
+    enemy_attack_area = []
 
 
 # When you put the chessman down, this function will work
@@ -121,9 +140,33 @@ def checkCastlingClick( existing_chess: Mapping[str, Sequence["Chesspiece"]], ce
                 continue
             existing_chess[current_move][RootIdx].move(cell_x = CastlingMOVE[dist]["Rook"][0], cell_y = CastlingMOVE[dist]["Rook"][1], cells = cells)
 
+def showChessPanel(color:str) -> str:
+    global screen, running
+    waiting = True
+    panel_sprite = pygame.sprite.Group()
+    panel = Panel(panel_sprite, color, chessman_img)
+    panel_sprite.add(panel)
+    for kind in panel.chessman:
+        panel_sprite.add(kind)
+    panel_sprite.draw(screen)
+    pygame.display.update()
+    while waiting:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                waiting = False
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if 300 <= mouse_pos[1] <= 300 + CHESS_SideLength:
+                        
+                    for i in range(4):
+                        if (170 + 100 * i) <= mouse_pos[0] <= (170 + 100*i + CHESS_SideLength):
+                            del panel_sprite, panel
+                            return ["Queen", "Rook", "Knight", "Bishop"][i]
 
+game_init()
 while running:
-
     clock.tick(FPS)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -174,8 +217,8 @@ while running:
 
                 existing_chess[current_move][choice].move(cell_x, cell_y, cells)
                 if existing_chess[current_move][choice].chesskind == "Pawn" and cell_y == 0:
-                    pawn_Promotion(existing_chess[current_move][choice])
-
+                    pawnPromotion(existing_chess[current_move][choice], showChessPanel(current_move),chessman_img)
+                    
 
                 renew_choice()
                 if current_move == "White":

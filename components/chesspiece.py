@@ -1,25 +1,20 @@
-import pygame
+import pygame 
 from typing import Sequence, Tuple, Optional, Mapping
 from components.constants import *
 from components.boardcell import *
 
-
 class Chesspiece(pygame.sprite.Sprite):
-    def __init__(self, chesskind:str, cell_x:int, cell_y:int, team:str, cells:list["BoardCell"]) -> None:
+    def __init__(self, chesskind:str, cell_x:int, cell_y:int, team:str, cells:list["BoardCell"], chessman_img:Mapping[str, Mapping[str,"pygame.Surface"]]) -> None:
         
         # new chesspiece must be spawned in the empty cell
         if cells[cell_x  + cell_y * CELL_Col_Cnt].state != CELL_STATE["Nothing"]:
             raise Exception("The position have other chess")
 
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((CHESS_SideLength, CHESS_SideLength))
-
+        self.image = pygame.transform.scale(chessman_img[team][chesskind], (CHESS_SideLength, CHESS_SideLength))
+        self.image.set_colorkey(RED)
         # which color does the chessman belong to 
         self.team = TEAM[team]
-        if team == "White":
-            self.image.fill(WHITE)
-        else:
-            self.image.fill(BLACK)
 
         # set the position
         self.rect = self.image.get_rect()
@@ -180,7 +175,7 @@ class Chesspiece(pygame.sprite.Sprite):
         cells[cell_x  + cell_y * CELL_Col_Cnt].state = self.team
         boardCellRecover(cells)
 
-def chessPiecesGenerate(cells:Sequence["BoardCell"]) -> Tuple["pygame.sprite.Group", Mapping[ str, list["Chesspiece"]]]:
+def chessPiecesGenerate(cells:Sequence["BoardCell"], chessman_img:Mapping[str, Mapping[str,"pygame.Surface"]]) -> Tuple["pygame.sprite.Group", Mapping[ str, list["Chesspiece"]]]:
     chess_sprite = pygame.sprite.Group()
     # white team
     order = ["Rook", "Knight", "Bishop", "King","Queen","Bishop","Knight", "Rook"]
@@ -197,19 +192,19 @@ def chessPiecesGenerate(cells:Sequence["BoardCell"]) -> Tuple["pygame.sprite.Gro
     (8) White "Rook", "Knight", "Bishop", "King","Queen","Bishop","Knight", "Rook"
     """
     for i, kind in enumerate(order):
-        temp = Chesspiece(kind, i, 0, "Black", cells)
+        temp = Chesspiece(kind, i, 0, "Black", cells, chessman_img)
         chess_sprite.add(temp)
         chess["Black"].append(temp)
 
-        temp = Chesspiece("Pawn", i, 1, "Black", cells)
+        temp = Chesspiece("Pawn", i, 1, "Black", cells, chessman_img)
         chess_sprite.add(temp)
         chess["Black"].append(temp)
         
-        temp = Chesspiece(kind, i, CELL_Row_Cnt-1, "White", cells)
+        temp = Chesspiece(kind, i, CELL_Row_Cnt-1, "White", cells, chessman_img)
         chess_sprite.add(temp)
         chess["White"].append(temp)
 
-        temp = Chesspiece("Pawn", i, CELL_Row_Cnt-2, "White", cells)
+        temp = Chesspiece("Pawn", i, CELL_Row_Cnt-2, "White", cells, chessman_img)
         chess_sprite.add(temp)
         chess["White"].append(temp)
 
@@ -229,5 +224,9 @@ def flipBoard(cells:Sequence["BoardCell"], existing_chess:Mapping[str, Sequence[
             cells[CELL_Col_Cnt * row + i].state, cells[(CELL_Row_Cnt - row - 1) * CELL_Col_Cnt + i].state = cells[(CELL_Row_Cnt - row - 1) * CELL_Col_Cnt + i].state, cells[CELL_Col_Cnt * row + i].state
     return
 
-def pawn_Promotion(pawn:["Chesspiece"]) -> None:
-    pass
+def pawnPromotion(pawn:"Chesspiece", chesskind:str, chessman_img:Mapping[str, Mapping[str,"pygame.Surface"]]) -> None:
+    pawn.chesskind = chesskind
+    del pawn.image
+    color = "White" if pawn.team == TEAM["White"] else "Black"
+    pawn.image = pygame.transform.scale(chessman_img[color][chesskind], (CHESS_SideLength, CHESS_SideLength))
+    pawn.image.set_colorkey(RED)
