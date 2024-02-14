@@ -86,13 +86,12 @@ class Chesspiece(pygame.sprite.Sprite):
         # since Pawn have more complicated rule such as "promotion" and "en passant", I will see it as an exception case
         if self.chesskind == "Pawn":
             cell_x, cell_y = getCell((self.rect.x, self.rect.y))
-            
+            return movableList
         # castling hint is for king moval
-        if self.chesskind == "King" and castling[self.team][1]:
-            leftRook, rightRook = castling[self.team][0], castling[self.team][2]
-            if leftRook:
-                for i in range():
-                    pass
+        teamColor = "White" if TEAM["White"] == self.team else "Black"
+        if self.chesskind == "King" and castling[teamColor][1]:
+            leftRook, rightRook = castling[teamColor][0], castling[teamColor][2]
+            
         # other chessman will use default direction(in constants.py) to move 
         for dir in CHESSMOVE[self.chesskind]:
             for dir_x, dir_y in dir:
@@ -166,7 +165,7 @@ def chessPiecesGenerate(cells:Sequence["BoardCell"]) -> Tuple["pygame.sprite.Gro
 # to make next player to observe easily
 def flipBoard(cells:Sequence["BoardCell"], existing_chess:Mapping[str, Sequence["Chesspiece"]]) -> None:
     for whiteBlackChess in existing_chess:
-        for chess in whiteBlackChess:
+        for chess in existing_chess[whiteBlackChess]:
             cell_y = (chess.rect.y - INIT_y) // CELL_SideLength
             flip_cell_y = CELL_Row_Cnt - cell_y - 1
             chess.rect.y = flip_cell_y * CELL_SideLength + INIT_y + 10

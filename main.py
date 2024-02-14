@@ -34,8 +34,8 @@ def renew_choice():
 # When you haven't chosen the chessman, this function will be called first.
 # and it will return whether you pick the chessman
 # True: you pick the chessman => variable "choice" is the chessman index in black(white)_chess and "move_area" will be updated
-def choose_chesspiece() -> bool:
-    global choice, move_area
+def choose_chesspiece() -> None:
+    global choice, move_area, mouse_pos
     renew_choice()
     boardCellRecover(cells)
     
@@ -43,7 +43,6 @@ def choose_chesspiece() -> bool:
         ret = chess.mouseTouch(mouse_pos, cells, chess_castling)
         if ret is None:
             chess.placeDown()
-            return False
         else: 
             move_area = ret
             choice = existing_chess[current_move].index(chess)
@@ -51,22 +50,26 @@ def choose_chesspiece() -> bool:
 # If you choose the next moval and the position is enemy, then remove the enemy from black(white)_chess and kill sprite
 def killEnemy(current_move:str, move_area:Tuple[int], mouse_cell_pos:Tuple[int]) -> None:
     global existing_chess
-    for i in range(len(existing_chess[current_move])):
-        enemy_cell_x, enemy_cell_y = getCell((existing_chess[current_move][i].rect.x, existing_chess[current_move][i].rect.y))
+    if current_move == "White":
+        enemy_color = "Black"
+    else:
+        enemy_color = "White"
+    for i in range(len(existing_chess[enemy_color])):
+        enemy_cell_x, enemy_cell_y = getCell((existing_chess[enemy_color][i].rect.x, existing_chess[enemy_color][i].rect.y))
         if (enemy_cell_x, enemy_cell_y) == mouse_cell_pos:
             cells[enemy_cell_x + enemy_cell_y * CELL_Col_Cnt].state = CELL_STATE["Nothing"]
-            temp = existing_chess[current_move][i]
-            if temp.chesskind == "Rook" and getCell((temp.rect.x, temp.rect.y) == (0, 0)):
+            temp = existing_chess[enemy_color][i]
+            if temp.chesskind == "Rook" and getCell((temp.rect.x, temp.rect.y)) == (0, 0):
                 # left Rook is dead
-                chess_castling[current_move][0] = False
-            elif temp.chesskind == "Rook" and getCell((temp.rect.x, temp.rect.y) == (CELL_Col_Cnt - 1, 0)):
+                chess_castling[enemy_color][0] = False
+            elif temp.chesskind == "Rook" and getCell((temp.rect.x, temp.rect.y)) == (CELL_Col_Cnt - 1, 0):
                 # right Rook is dead
-                chess_castling[current_move][2] = False
+                chess_castling[enemy_color][2] = False
             elif temp.chesskind == "King":
                 # King is dead, game end
                 pass
                 "GAME_END"
-            existing_chess[current_move].pop(i)
+            existing_chess[enemy_color].pop(i)
             temp.kill()
             return
             
@@ -89,7 +92,6 @@ while running:
                 if cells[cell_x + cell_y * CELL_Col_Cnt].state != CELL_STATE["Nothing"]:
                     killEnemy(current_move, move_area, (cell_x, cell_y))
 
-                
                 existing_chess[current_move][choice].move(cell_x, cell_y, cells)
                 renew_choice()
                 if current_move == "White":
