@@ -210,8 +210,6 @@ def chessPiecesGenerate(cells:Sequence["BoardCell"], chessman_img:Mapping[str, M
 
     return chess_sprite, chess
         
-
-
 # to make next player to observe easily
 def flipBoard(cells:Sequence["BoardCell"], existing_chess:Mapping[str, Sequence["Chesspiece"]]) -> None:
     for whiteBlackChess in existing_chess:

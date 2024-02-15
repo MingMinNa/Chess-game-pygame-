@@ -3,15 +3,17 @@ from typing import Sequence
 from components.constants import *
 from components.boardcell import *
 from components.chesspiece import *
-from components.promotionPanel import *
+from components.Panel import *
 import os
 
 # process control
 pygame.init()
 pygame.display.set_caption("Chess Game")
+pygame.display.set_icon("")
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-clock = pygame.time.Clock()
+clock = pygame.time.Clock("")
 running = True
+init = True
 current_move = "White"
 
 # load image
@@ -30,9 +32,12 @@ chessman_img["White"]["Knight"] = pygame.image.load(os.path.join("img", "Knight2
 chessman_img["White"]["Bishop"] = pygame.image.load(os.path.join("img", "Bishop2.png")).convert()
 chessman_img["White"]["Rook"] = pygame.image.load(os.path.join("img", "Rook2.png")).convert()
 
+
+
+# When chess game start, initialize all the variable
 def game_init() -> None:
     # chessboard spawn ("cells" is a List)
-    global boardcell_sprite, cells, chess_sprite, existing_chess,panel_sprite, choice, move_area, chess_castling, enemy_attack_area
+    global boardcell_sprite, cells, chess_sprite, existing_chess,panel_sprite, choice, move_area, chess_castling, enemy_attack_area, current_move
     boardcell_sprite, cells = chessBoardGenerate()
     chess_sprite, existing_chess = chessPiecesGenerate(cells, chessman_img)
 
@@ -42,6 +47,7 @@ def game_init() -> None:
     # check whether you have moved the chessman(or alive): [Left Rook, King, Right Rook]
     chess_castling = {"White": [True, True, True], "Black": [True, True, True]}
     enemy_attack_area = []
+    current_move = "White"
 
 
 # When you put the chessman down, this function will work
@@ -69,10 +75,8 @@ def choose_chesspiece() -> None:
 # If you choose the next moval and the position is enemy, then remove the enemy from black(white)_chess and kill sprite
 def killEnemy(current_move:str, move_area:Tuple[int], mouse_cell_pos:Tuple[int]) -> None:
     global existing_chess
-    if current_move == "White":
-        enemy_color = "Black"
-    else:
-        enemy_color = "White"
+    enemy_color = "Black" if current_move == "White" else "White"
+
     for i in range(len(existing_chess[enemy_color])):
         enemy_cell_x, enemy_cell_y = getCell((existing_chess[enemy_color][i].rect.x, existing_chess[enemy_color][i].rect.y))
         if (enemy_cell_x, enemy_cell_y) == mouse_cell_pos:
@@ -86,20 +90,19 @@ def killEnemy(current_move:str, move_area:Tuple[int], mouse_cell_pos:Tuple[int])
                 chess_castling[enemy_color][2] = False
             elif temp.chesskind == "King":
                 # King is dead, game end
-                pass
-                "GAME_END"
+                gameEnd(current_move)
+
             existing_chess[enemy_color].pop(i)
             temp.kill()
             return
             
     raise Exception("enemy_idx Error")
 
+
+# calculate the enemy attack area so that the king can't choose those cells to kill itself
 def calculate_EnemyAttackArea(enemy_attack_area:list[Tuple[int]], existing_chess:Mapping[str, list["Chesspiece"]], current_move:str, cells: Sequence["BoardCell"]) -> None:
     enemy_attack_area.clear()
-    if current_move == "White":
-        enemy_color = "Black"
-    else:
-        enemy_color = "White"
+    enemy_color = "Black" if current_move == "White" else "White"
 
     # Add Pawn path
     ChessMove = CHESSMOVE.copy()
@@ -119,6 +122,7 @@ def calculate_EnemyAttackArea(enemy_attack_area:list[Tuple[int]], existing_chess
     
     del ChessMove
 
+# When you move king, check whether your choice is Castling. If yes, move the Rook, or nothing happen
 def checkCastlingClick( existing_chess: Mapping[str, Sequence["Chesspiece"]], cells:Sequence["BoardCell"], mouse_cell_pos:Tuple[int]) -> None:
     if mouse_cell_pos not in CastlingMOVE["Short"]["King"] and \
        mouse_cell_pos  not in CastlingMOVE["Long"]["King"]:
@@ -140,6 +144,7 @@ def checkCastlingClick( existing_chess: Mapping[str, Sequence["Chesspiece"]], ce
                 continue
             existing_chess[current_move][RootIdx].move(cell_x = CastlingMOVE[dist]["Rook"][0], cell_y = CastlingMOVE[dist]["Rook"][1], cells = cells)
 
+# when the pawn in the enemy last row, then show the promotion panel to choose chess piece
 def showChessPanel(color:str) -> str:
     global screen, running
     waiting = True
@@ -149,6 +154,7 @@ def showChessPanel(color:str) -> str:
     for kind in panel.chessman:
         panel_sprite.add(kind)
     panel_sprite.draw(screen)
+    screen_draw_text(screen, "Click chessman picture to promote", WIDTH // 2, HEIGHT // 2 + 80, 30, WHITE)
     pygame.display.update()
     while waiting:
         clock.tick(FPS)
@@ -165,9 +171,44 @@ def showChessPanel(color:str) -> str:
                             del panel_sprite, panel
                             return ["Queen", "Rook", "Knight", "Bishop"][i]
 
-game_init()
+
+# King is dead
+def gameEnd(winner:str) -> None:
+    global init
+    init = True
+
+
+# initial_panel, press any to play game
+def init_screen() -> None:
+    global running
+    screen.fill(GREEN)
+    screen_draw_text(screen, "Chess Game", WIDTH // 2, HEIGHT // 2 - 80, 100, WHITE)
+    screen_draw_text(screen, "Press any to start game", WIDTH // 2, HEIGHT // 2 + 20, 70, WHITE)
+    pygame.display.update()
+    waiting = True
+    while waiting is True:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                waiting = False
+                running = False
+            elif event.type == pygame.KEYUP:
+                waiting = False
+
+def screen_draw_text(screen:"pygame.Surface", text:str, center_x:int, center_y:int, fontSize:int, Fontcolor:Tuple[int]) -> None:
+    font = pygame.font.Font(None, fontSize)
+    text_surface = font.render(f"{text}", True, Fontcolor)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (center_x, center_y)
+    screen.blit(text_surface, text_rect)
+
 while running:
     clock.tick(FPS)
+    if init is True:
+        init_screen()
+        game_init() # game start
+        init = False
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -217,15 +258,17 @@ while running:
 
                 existing_chess[current_move][choice].move(cell_x, cell_y, cells)
                 if existing_chess[current_move][choice].chesskind == "Pawn" and cell_y == 0:
-                    pawnPromotion(existing_chess[current_move][choice], showChessPanel(current_move),chessman_img)
+                    promote =  showChessPanel(current_move)
+                    # You close the window
+                    if running is False:    break
+                    pawnPromotion(existing_chess[current_move][choice], promote ,chessman_img)
                     
 
                 renew_choice()
-                if current_move == "White":
-                    current_move = "Black"
-                else:
-                    current_move = "White"
+                # Next color move
+                current_move = "White" if current_move == "Black" else "Black"
                 
+                # flip the chess board
                 flipBoard(cells, existing_chess)
             else:
                 # when choice is not -1, then put the chessman down
