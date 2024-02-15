@@ -9,14 +9,17 @@ import os
 # process control
 pygame.init()
 pygame.display.set_caption("Chess Game")
-pygame.display.set_icon("")
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-clock = pygame.time.Clock("")
+clock = pygame.time.Clock()
 running = True
 init = True
 current_move = "White"
 
 # load image
+icon = pygame.image.load(os.path.join("img", "icon.png")).convert()
+icon_surface = pygame.transform.scale(icon, (25, 19))
+pygame.display.set_icon(icon_surface)
+
 chessman_img = {"Black":dict(), "White":dict()}
 chessman_img["Black"]["King"] = pygame.image.load(os.path.join("img", "King.png")).convert()
 chessman_img["Black"]["Queen"] = pygame.image.load(os.path.join("img", "Queen.png")).convert()
@@ -90,7 +93,7 @@ def killEnemy(current_move:str, move_area:Tuple[int], mouse_cell_pos:Tuple[int])
                 chess_castling[enemy_color][2] = False
             elif temp.chesskind == "King":
                 # King is dead, game end
-                gameEnd(current_move)
+                game_end(current_move)
 
             existing_chess[enemy_color].pop(i)
             temp.kill()
@@ -173,27 +176,36 @@ def showChessPanel(color:str) -> str:
 
 
 # King is dead
-def gameEnd(winner:str) -> None:
-    global init
+def game_end(winner:str) -> None:
+    global init, screen, chessman_img, running
     init = True
-
+    screen_draw_text(screen, f"Player {winner} is winner", WIDTH // 2 ,HEIGHT // 2 - 70, 80, YELLOW)
+    screen_draw_text(screen, f"Press any to continue", WIDTH // 2 ,HEIGHT // 2 + 70, 80, YELLOW)
+    pygame.display.update()
+    while True:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                return
+            elif event.type == pygame.KEYUP:
+                return
+             
 
 # initial_panel, press any to play game
-def init_screen() -> None:
-    global running
+def init_screen() -> bool:
     screen.fill(GREEN)
     screen_draw_text(screen, "Chess Game", WIDTH // 2, HEIGHT // 2 - 80, 100, WHITE)
     screen_draw_text(screen, "Press any to start game", WIDTH // 2, HEIGHT // 2 + 20, 70, WHITE)
     pygame.display.update()
-    waiting = True
-    while waiting is True:
+
+    while True: # waiting
         clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                waiting = False
-                running = False
+                return True
             elif event.type == pygame.KEYUP:
-                waiting = False
+                return False
 
 def screen_draw_text(screen:"pygame.Surface", text:str, center_x:int, center_y:int, fontSize:int, Fontcolor:Tuple[int]) -> None:
     font = pygame.font.Font(None, fontSize)
@@ -205,10 +217,10 @@ def screen_draw_text(screen:"pygame.Surface", text:str, center_x:int, center_y:i
 while running:
     clock.tick(FPS)
     if init is True:
-        init_screen()
+        close = init_screen()
+        if close:break
         game_init() # game start
         init = False
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -219,7 +231,6 @@ while running:
             # You have chosen the chessman and click the next moval position
             if choice != -1 and len(move_area) != 0 and (cell_x, cell_y) in move_area:
                
-                
                 if existing_chess[current_move][choice].chesskind == "Pawn":
                     pawn_cell_x, pawn_cell_y = getCell((existing_chess[current_move][choice].rect.x, existing_chess[current_move][choice].rect.y))
                     # The first case is en passant
@@ -278,8 +289,13 @@ while running:
                     boardCellRecover(cells)
                     continue
                 choose_chesspiece()
-                    
+        elif event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+            init = True
+            break
+               
     screen.fill(BLACK)
+    screen_draw_text(screen, f"Round:{current_move}", 100, 15, 30, GRAY)
+    screen_draw_text(screen, f"Press Esc to exit ", 550, 15, 30, GRAY)
     boardcell_sprite.draw(screen)
     chess_sprite.draw(screen)
     pygame.display.update()
