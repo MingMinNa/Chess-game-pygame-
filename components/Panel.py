@@ -1,6 +1,6 @@
 
 import pygame
-from components.constants import *
+from components import *
 from components.chesspiece import *
 from components.boardcell import *
 

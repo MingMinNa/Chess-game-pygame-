@@ -1,6 +1,6 @@
 import pygame
 from typing import Sequence
-from components.constants import *
+from components import *
 from components.boardcell import *
 from components.chesspiece import *
 from components.Panel import *
@@ -174,7 +174,6 @@ def showChessPanel(color:str) -> str:
                             del panel_sprite, panel
                             return ["Queen", "Rook", "Knight", "Bishop"][i]
 
-
 # King is dead
 def game_end(winner:str) -> None:
     global init, screen, chessman_img, running
@@ -191,7 +190,6 @@ def game_end(winner:str) -> None:
             elif event.type == pygame.KEYUP:
                 return
              
-
 # initial_panel, press any to play game
 def init_screen() -> bool:
     screen.fill(GREEN)

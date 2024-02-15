@@ -1,6 +1,6 @@
 import pygame
 from typing import Sequence, Tuple
-from components.constants import *
+from components import *
 
 
 class BoardCell(pygame.sprite.Sprite):

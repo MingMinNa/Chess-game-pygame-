@@ -1,6 +1,6 @@
 import pygame 
 from typing import Sequence, Tuple, Optional, Mapping
-from components.constants import *
+from components import *
 from components.boardcell import *
 
 class Chesspiece(pygame.sprite.Sprite):
@@ -92,26 +92,26 @@ class Chesspiece(pygame.sprite.Sprite):
             if cell_y == CELL_Col_Cnt - 2:
                 for i in range(1, 3):
                     if cells[CELL_Col_Cnt * (cell_y - i) + cell_x].state == CELL_STATE["Nothing"]:
-                        cells[CELL_Col_Cnt * (cell_y - i) + cell_x].image.fill(CHESS_COLOR["Space"])
+                        cells[CELL_Col_Cnt * (cell_y - i) + cell_x].image.fill(CELL_COLOR_BASE_ON_CHESS["Space"])
                         movableList.append((cell_x, cell_y - i))
                     else:
                         break
             elif cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].state == CELL_STATE["Nothing"]:
-                cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].image.fill(CHESS_COLOR["Space"])
+                cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].image.fill(CELL_COLOR_BASE_ON_CHESS["Space"])
                 if cell_y == 1:
-                    cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].image.fill(CHESS_COLOR["Promotion"])    
+                    cells[CELL_Col_Cnt * (cell_y - 1) + cell_x].image.fill(CELL_COLOR_BASE_ON_CHESS["Promotion"])    
                 movableList.append((cell_x, cell_y - 1))
             
             # en passant
             if self.en_passant >= 0:
                 en_passant_x, en_passant_y = getCell((existing_chess[enemy_color][self.en_passant].rect.x, existing_chess[enemy_color][self.en_passant].rect.y))
-                cells[CELL_Col_Cnt * (en_passant_y - 1) + en_passant_x].image.fill(CHESS_COLOR["Enemy"])
+                cells[CELL_Col_Cnt * (en_passant_y - 1) + en_passant_x].image.fill(CELL_COLOR_BASE_ON_CHESS["Enemy"])
                 movableList.append((en_passant_x, en_passant_y - 1))
             # diagonal direction
             for chess in existing_chess[enemy_color]:
                 enemy_x, enemy_y = getCell((chess.rect.x, chess.rect.y))
                 if abs(enemy_x - cell_x) == 1 and cell_y - enemy_y == 1:
-                    cells[CELL_Col_Cnt * enemy_y + enemy_x].image.fill(CHESS_COLOR["Enemy"])
+                    cells[CELL_Col_Cnt * enemy_y + enemy_x].image.fill(CELL_COLOR_BASE_ON_CHESS["Enemy"])
                     movableList.append((enemy_x, enemy_y)) 
              
             return movableList
@@ -134,11 +134,11 @@ class Chesspiece(pygame.sprite.Sprite):
 
             if leftRook:
                 # short castling
-                cells[(CELL_Row_Cnt - 1) * CELL_Col_Cnt + 1].image.fill(CHESS_COLOR["Castling"])
+                cells[(CELL_Row_Cnt - 1) * CELL_Col_Cnt + 1].image.fill(CELL_COLOR_BASE_ON_CHESS["Castling"])
                 movableList.append((1, CELL_Row_Cnt - 1))
             if rightRook:
                 # long castling
-                cells[(CELL_Row_Cnt - 1) * CELL_Col_Cnt + 5].image.fill(CHESS_COLOR["Castling"])
+                cells[(CELL_Row_Cnt - 1) * CELL_Col_Cnt + 5].image.fill(CELL_COLOR_BASE_ON_CHESS["Castling"])
                 movableList.append((5,  CELL_Row_Cnt - 1))
         
         # other chessman will use default direction(in constants.py) to move 
@@ -150,12 +150,12 @@ class Chesspiece(pygame.sprite.Sprite):
                     continue
                 
                 if cells[pos_y * CELL_Col_Cnt + pos_x].state == CELL_STATE["Nothing"]:
-                    cells[pos_y * CELL_Col_Cnt + pos_x].image.fill(CHESS_COLOR["Space"])
+                    cells[pos_y * CELL_Col_Cnt + pos_x].image.fill(CELL_COLOR_BASE_ON_CHESS["Space"])
                     movableList.append((pos_x, pos_y))
                 # Note: when we meet any other chessman in this direction, 
                 # we can't go farther anymore => then break
                 elif cells[pos_y * CELL_Col_Cnt + pos_x].state != self.team:
-                    cells[pos_y * CELL_Col_Cnt + pos_x].image.fill(CHESS_COLOR["Enemy"])
+                    cells[pos_y * CELL_Col_Cnt + pos_x].image.fill(CELL_COLOR_BASE_ON_CHESS["Enemy"])
                     movableList.append((pos_x, pos_y))
                     break
                 else:
@@ -226,5 +226,7 @@ def pawnPromotion(pawn:"Chesspiece", chesskind:str, chessman_img:Mapping[str, Ma
     pawn.chesskind = chesskind
     del pawn.image
     color = "White" if pawn.team == TEAM["White"] else "Black"
+
+    # change the chessman image 
     pawn.image = pygame.transform.scale(chessman_img[color][chesskind], (CHESS_SideLength, CHESS_SideLength))
     pawn.image.set_colorkey(RED)
