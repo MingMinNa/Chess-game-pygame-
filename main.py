@@ -16,24 +16,25 @@ init = True
 current_move = "White"
 
 # load image
-icon = pygame.image.load(os.path.join("img", "icon.png")).convert()
+dir_path = os.path.dirname(os.path.abspath(__file__)) + "\\"
+icon = pygame.image.load(dir_path + os.path.join("img", "icon.png")).convert()
 icon_surface = pygame.transform.scale(icon, (25, 19))
 pygame.display.set_icon(icon_surface)
 
 chessman_img = {"Black":dict(), "White":dict()}
-chessman_img["Black"]["King"] = pygame.image.load(os.path.join("img", "King.png")).convert()
-chessman_img["Black"]["Queen"] = pygame.image.load(os.path.join("img", "Queen.png")).convert()
-chessman_img["Black"]["Pawn"] = pygame.image.load(os.path.join("img", "Pawn.png")).convert()
-chessman_img["Black"]["Knight"] = pygame.image.load(os.path.join("img", "Knight.png")).convert()
-chessman_img["Black"]["Bishop"] = pygame.image.load(os.path.join("img", "Bishop.png")).convert()
-chessman_img["Black"]["Rook"] = pygame.image.load(os.path.join("img", "Rook.png")).convert()
+chessman_img["Black"]["King"] = pygame.image.load(dir_path + os.path.join("img", "King.png")).convert()
+chessman_img["Black"]["Queen"] = pygame.image.load(dir_path + os.path.join("img", "Queen.png")).convert()
+chessman_img["Black"]["Pawn"] = pygame.image.load(dir_path + os.path.join("img", "Pawn.png")).convert()
+chessman_img["Black"]["Knight"] = pygame.image.load(dir_path + os.path.join("img", "Knight.png")).convert()
+chessman_img["Black"]["Bishop"] = pygame.image.load(dir_path + os.path.join("img", "Bishop.png")).convert()
+chessman_img["Black"]["Rook"] = pygame.image.load(dir_path + os.path.join("img", "Rook.png")).convert()
 
-chessman_img["White"]["King"] = pygame.image.load(os.path.join("img", "King2.png")).convert()
-chessman_img["White"]["Queen"] = pygame.image.load(os.path.join("img", "Queen2.png")).convert()
-chessman_img["White"]["Pawn"] = pygame.image.load(os.path.join("img", "Pawn2.png")).convert()
-chessman_img["White"]["Knight"] = pygame.image.load(os.path.join("img", "Knight2.png")).convert()
-chessman_img["White"]["Bishop"] = pygame.image.load(os.path.join("img", "Bishop2.png")).convert()
-chessman_img["White"]["Rook"] = pygame.image.load(os.path.join("img", "Rook2.png")).convert()
+chessman_img["White"]["King"] = pygame.image.load(dir_path + os.path.join("img", "King2.png")).convert()
+chessman_img["White"]["Queen"] = pygame.image.load(dir_path + os.path.join("img", "Queen2.png")).convert()
+chessman_img["White"]["Pawn"] = pygame.image.load(dir_path + os.path.join("img", "Pawn2.png")).convert()
+chessman_img["White"]["Knight"] = pygame.image.load(dir_path + os.path.join("img", "Knight2.png")).convert()
+chessman_img["White"]["Bishop"] = pygame.image.load(dir_path + os.path.join("img", "Bishop2.png")).convert()
+chessman_img["White"]["Rook"] = pygame.image.load(dir_path + os.path.join("img", "Rook2.png")).convert()
 
 
 
@@ -237,6 +238,8 @@ while running:
                         abs(cell_x - pawn_cell_x) == 1 and \
                         cells[cell_x  + CELL_Col_Cnt * cell_y].state == CELL_STATE["Nothing"]:
                         killEnemy(current_move, move_area, (cell_x, cell_y + 1))
+                        if running is False: break 
+                        elif init is True : continue
                     # The second case: first step (move 2 cell) => then we set the left(right) enemy pawn en_passant (if any)
                     elif abs(pawn_cell_y - cell_y) == 2:
                         enemy_color = "White" if current_move == "Black" else "Black"
@@ -248,6 +251,11 @@ while running:
                  # If the cell you click has enemy, kill it
                 if cells[cell_x + cell_y * CELL_Col_Cnt].state != CELL_STATE["Nothing"]:
                     killEnemy(current_move, move_area, (cell_x, cell_y))
+                    # When promotion and kill King occur at the same time, it will show
+                    # game end text ("Player {} is winner") and promotion panel.
+                    # Therefore, check whether the game is end (init is True) before showing the promotion panel 
+                    if running is False: break 
+                    elif init is True : continue
 
                 # Castling handling
                 if existing_chess[current_move][choice].chesskind == "King":
