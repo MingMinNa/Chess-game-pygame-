@@ -17,27 +17,27 @@ checkState = False
 current_move = "White"
 
 # load image and audio
-dir_path = os.path.dirname(os.path.abspath(__file__)) + "\\"
-icon = pygame.image.load(dir_path + os.path.join("img", "icon.png")).convert()
+dir_path = os.path.dirname(os.path.abspath(__file__))
+icon = pygame.image.load(os.path.join(dir_path, "img", "icon.png")).convert()
 icon_surface = pygame.transform.scale(icon, (25, 19))
 pygame.display.set_icon(icon_surface)
 
-placeChessman_audio = pygame.mixer.Sound(dir_path + os.path.join("audio", "placeChessman.mp3"))
+placeChessman_audio = pygame.mixer.Sound(os.path.join(dir_path, "audio", "placeChessman.mp3"))
 
 chessman_img = {"Black":dict(), "White":dict()}
-chessman_img["Black"]["King"] = pygame.image.load(dir_path + os.path.join("img", "King.png")).convert()
-chessman_img["Black"]["Queen"] = pygame.image.load(dir_path + os.path.join("img", "Queen.png")).convert()
-chessman_img["Black"]["Pawn"] = pygame.image.load(dir_path + os.path.join("img", "Pawn.png")).convert()
-chessman_img["Black"]["Knight"] = pygame.image.load(dir_path + os.path.join("img", "Knight.png")).convert()
-chessman_img["Black"]["Bishop"] = pygame.image.load(dir_path + os.path.join("img", "Bishop.png")).convert()
-chessman_img["Black"]["Rook"] = pygame.image.load(dir_path + os.path.join("img", "Rook.png")).convert()
+chessman_img["Black"]["King"] = pygame.image.load(os.path.join(dir_path, "img", "King.png")).convert()
+chessman_img["Black"]["Queen"] = pygame.image.load(os.path.join(dir_path, "img", "Queen.png")).convert()
+chessman_img["Black"]["Pawn"] = pygame.image.load(os.path.join(dir_path, "img", "Pawn.png")).convert()
+chessman_img["Black"]["Knight"] = pygame.image.load(os.path.join(dir_path, "img", "Knight.png")).convert()
+chessman_img["Black"]["Bishop"] = pygame.image.load(os.path.join(dir_path, "img", "Bishop.png")).convert()
+chessman_img["Black"]["Rook"] = pygame.image.load(os.path.join(dir_path, "img", "Rook.png")).convert()
 
-chessman_img["White"]["King"] = pygame.image.load(dir_path + os.path.join("img", "King2.png")).convert()
-chessman_img["White"]["Queen"] = pygame.image.load(dir_path + os.path.join("img", "Queen2.png")).convert()
-chessman_img["White"]["Pawn"] = pygame.image.load(dir_path + os.path.join("img", "Pawn2.png")).convert()
-chessman_img["White"]["Knight"] = pygame.image.load(dir_path + os.path.join("img", "Knight2.png")).convert()
-chessman_img["White"]["Bishop"] = pygame.image.load(dir_path + os.path.join("img", "Bishop2.png")).convert()
-chessman_img["White"]["Rook"] = pygame.image.load(dir_path + os.path.join("img", "Rook2.png")).convert()
+chessman_img["White"]["King"] = pygame.image.load(os.path.join(dir_path, "img", "King2.png")).convert()
+chessman_img["White"]["Queen"] = pygame.image.load(os.path.join(dir_path, "img", "Queen2.png")).convert()
+chessman_img["White"]["Pawn"] = pygame.image.load(os.path.join(dir_path, "img", "Pawn2.png")).convert()
+chessman_img["White"]["Knight"] = pygame.image.load(os.path.join(dir_path, "img", "Knight2.png")).convert()
+chessman_img["White"]["Bishop"] = pygame.image.load(os.path.join(dir_path, "img", "Bishop2.png")).convert()
+chessman_img["White"]["Rook"] = pygame.image.load(os.path.join(dir_path, "img", "Rook2.png")).convert()
 
 
 
@@ -128,6 +128,8 @@ def calculate_EnemyAttackArea(enemy_attack_area:list[Tuple[int]], existing_chess
                     break
     
     del ChessMove
+
+# Find King and check whether King stay in enemy attack area (player is in check)
 def KingInAttackArea(enemy_attack_area:list[Tuple[int]], current_move:str, existing_chess:Mapping[str, list["Chesspiece"]]) -> bool:
     kingPos = (-1, -1)
     for chess in existing_chess[current_move]:
