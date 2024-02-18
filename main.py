@@ -13,6 +13,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 running = True
 init = True
+checkState = False
 current_move = "White"
 
 # load image
@@ -41,11 +42,11 @@ chessman_img["White"]["Rook"] = pygame.image.load(dir_path + os.path.join("img",
 # When chess game start, initialize all the variable
 def game_init() -> None:
     # chessboard spawn ("cells" is a List)
-    global boardcell_sprite, cells, chess_sprite, existing_chess,panel_sprite, choice, move_area, chess_castling, enemy_attack_area, current_move
+    global boardcell_sprite, cells, chess_sprite, existing_chess,panel_sprite, choice, move_area, chess_castling, enemy_attack_area, current_move, checkState
     boardcell_sprite, cells = chessBoardGenerate()
     chess_sprite, existing_chess = chessPiecesGenerate(cells, chessman_img)
 
-
+    checkState = False
     choice = -1
     move_area = []
     # check whether you have moved the chessman(or alive): [Left Rook, King, Right Rook]
@@ -125,6 +126,16 @@ def calculate_EnemyAttackArea(enemy_attack_area:list[Tuple[int]], existing_chess
                     break
     
     del ChessMove
+def KingInAttackArea(enemy_attack_area:list[Tuple[int]], current_move:str, existing_chess:Mapping[str, list["Chesspiece"]]) -> bool:
+    kingPos = (-1, -1)
+    for chess in existing_chess[current_move]:
+        if chess.chesskind == "King":
+            kingPos = getCell((chess.rect.x , chess.rect.y))
+            break
+    if kingPos == (-1, -1) or kingPos not in enemy_attack_area:
+        return False
+    return True
+
 
 # When you move king, check whether your choice is Castling. If yes, move the Rook, or nothing happen
 def checkCastlingClick( existing_chess: Mapping[str, Sequence["Chesspiece"]], cells:Sequence["BoardCell"], mouse_cell_pos:Tuple[int]) -> None:
@@ -195,7 +206,7 @@ def game_end(winner:str) -> None:
 def init_screen() -> bool:
     screen.fill(GREEN)
     screen_draw_text(screen, "Chess Game", WIDTH // 2, HEIGHT // 2 - 80, 100, WHITE)
-    screen_draw_text(screen, "Press any to start game", WIDTH // 2, HEIGHT // 2 + 20, 70, WHITE)
+    screen_draw_text(screen, "Press any to play", WIDTH // 2, HEIGHT // 2 + 20, 70, WHITE)
     pygame.display.update()
 
     while True: # waiting
@@ -224,7 +235,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            calculate_EnemyAttackArea(enemy_attack_area, existing_chess, current_move, cells)
+            
             mouse_pos = pygame.mouse.get_pos()
             cell_x, cell_y = getCell(mouse_pos)
             # You have chosen the chessman and click the next moval position
@@ -287,6 +298,8 @@ while running:
                 
                 # flip the chess board
                 flipBoard(cells, existing_chess)
+                calculate_EnemyAttackArea(enemy_attack_area, existing_chess, current_move, cells)
+                checkState = KingInAttackArea(enemy_attack_area,current_move, existing_chess)
             else:
                 # when choice is not -1, then put the chessman down
                 if choice != -1:
@@ -301,7 +314,9 @@ while running:
                
     screen.fill(BLACK)
     screen_draw_text(screen, f"Round:{current_move}", 100, 15, 30, GRAY)
-    screen_draw_text(screen, f"Press Esc to exit ", 550, 15, 30, GRAY)
+    screen_draw_text(screen, f"Press Esc to exit ", 600, 15, 30, GRAY)
+    if checkState:
+        screen_draw_text(screen, "Check", 350, 15, 30, RED)
     boardcell_sprite.draw(screen)
     chess_sprite.draw(screen)
     pygame.display.update()
