@@ -16,11 +16,13 @@ init = True
 checkState = False
 current_move = "White"
 
-# load image
+# load image and audio
 dir_path = os.path.dirname(os.path.abspath(__file__)) + "\\"
 icon = pygame.image.load(dir_path + os.path.join("img", "icon.png")).convert()
 icon_surface = pygame.transform.scale(icon, (25, 19))
 pygame.display.set_icon(icon_surface)
+
+placeChessman_audio = pygame.mixer.Sound(dir_path + os.path.join("audio", "placeChessman.mp3"))
 
 chessman_img = {"Black":dict(), "White":dict()}
 chessman_img["Black"]["King"] = pygame.image.load(dir_path + os.path.join("img", "King.png")).convert()
@@ -285,6 +287,7 @@ while running:
                             chess.en_passant = Pawn_EnPassant["Loss Chance"]
 
                 existing_chess[current_move][choice].move(cell_x, cell_y, cells)
+                placeChessman_audio.play()
                 if existing_chess[current_move][choice].chesskind == "Pawn" and cell_y == 0:
                     promote =  showChessPanel(current_move)
                     # You close the window
