@@ -10,17 +10,17 @@
 
 ## 遊戲畫面
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*遊戲初始畫面*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*棋盤與棋子*   
-<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/display_init.png" alt="display_init.png" width="200" height="200">
-<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/display_board.png" alt="display_board.png" width="200" height="200">  
+<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/Display_img/display_init.png" alt="display_init.png" width="200" height="200">
+<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/Display_img/display_board.png" alt="display_board.png" width="200" height="200">  
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*移動提示(1)*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*移動提示(2)*  
-<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/display_play1.png" alt="display_play1.png" width="200" height="200">
-<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/display_play2.png" alt="display_play2.png" width="200" height="200">
+<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/Display_img/display_play1.png" alt="display_play1.png" width="200" height="200">
+<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/Display_img/display_play2.png" alt="display_play2.png" width="200" height="200">
 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*晉升提示*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*晉升面板*  
-<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/display_promotion1.png" alt="display_promotion1.png" width="200" height="200">
-<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/display_promotion2.png" alt="display_promotion2.png" width="200" height="200">
+<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/Display_img/display_promotion1.png" alt="display_promotion1.png" width="200" height="200">
+<img src="https://github.com/MingMinNa/ChessGame/blob/main/img/Display_img/display_promotion2.png" alt="display_promotion2.png" width="200" height="200">
 
 
 ## 補充說明
