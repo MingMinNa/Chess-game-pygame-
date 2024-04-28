@@ -143,25 +143,22 @@ def KingInAttackArea(enemy_attack_area:list[Tuple[int]], current_move:str, exist
 
 # When you move king, check whether your choice is Castling. If yes, move the Rook, or nothing happen
 def checkCastlingClick( existing_chess: Mapping[str, Sequence["Chesspiece"]], cells:Sequence["BoardCell"], mouse_cell_pos:Tuple[int]) -> None:
-    if mouse_cell_pos not in CastlingMOVE["Short"]["King"] and \
-       mouse_cell_pos  not in CastlingMOVE["Long"]["King"]:
+    
+    if (mouse_cell_pos[0] != CastlingMOVE["Short"]["King"][0] or mouse_cell_pos[1] != CastlingMOVE["Short"]["King"][1]) and\
+        (mouse_cell_pos[0] != CastlingMOVE["Long"]["King"][0] or mouse_cell_pos[1] != CastlingMOVE["Long"]["King"][1]):
         return
-
-
+    
     for dist in ("Short", "Long"):
         king_cell_x , king_cell_y = getCell((existing_chess[current_move][choice].rect.x, existing_chess[current_move][choice].rect.y))
         if (king_cell_x, king_cell_y) == CastlingMOVE[dist]["Original_King"]:
             # find RootIdx
-            RookIdx = None
             for i in range(len(existing_chess[current_move])):
                 rook_cell_x, rook_cell_y = getCell((existing_chess[current_move][i].rect.x, existing_chess[current_move][i].rect.y))
-                if (rook_cell_x, rook_cell_y) == CastlingMOVE[dist]["Original_Rook"]:
+                if rook_cell_x == CastlingMOVE[dist]["Original_Rook"][0] and rook_cell_y == CastlingMOVE[dist]["Original_Rook"][1] and\
+                    mouse_cell_pos[0] == CastlingMOVE[dist]["King"][0] and mouse_cell_pos[1] == CastlingMOVE[dist]["King"][1]:
                     RootIdx = i
-                    break
-                # fail to find Idx
-            if RookIdx is None:
-                continue
-            existing_chess[current_move][RootIdx].move(cell_x = CastlingMOVE[dist]["Rook"][0], cell_y = CastlingMOVE[dist]["Rook"][1], cells = cells)
+                    existing_chess[current_move][RootIdx].move(cell_x = CastlingMOVE[dist]["Rook"][0], cell_y = CastlingMOVE[dist]["Rook"][1], cells = cells)
+                    return
 
 # when the pawn in the enemy last row, then show the promotion panel to choose chess piece
 def showChessPanel(color:str) -> str:
