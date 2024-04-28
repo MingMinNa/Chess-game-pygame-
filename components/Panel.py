@@ -4,6 +4,7 @@ from components import *
 from components.chesspiece import *
 from components.boardcell import *
 
+
 # Chessman on the promotion panel
 class PanelChess(pygame.sprite.Sprite):
     def __init__(self, x:int, y:int, size:int, color:str, chesskind:str, chessman_img:Mapping[str, Mapping[str,"pygame.Surface"]]) -> None:

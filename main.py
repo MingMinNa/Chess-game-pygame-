@@ -3,7 +3,7 @@ from typing import Sequence
 from components import *
 from components.boardcell import *
 from components.chesspiece import *
-from components.Panel import *
+from components.panel import *
 import os
 
 # process control
