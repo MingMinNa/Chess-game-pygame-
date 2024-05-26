@@ -313,8 +313,8 @@ while running:
         elif event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
             init = True
             break
-               
-    screen.fill(BLACK)
+    
+    screen.fill(BLACK if current_move == "Black" else WHITE)
     screen_draw_text(screen, f"Round:{current_move}", 100, 15, 30, GRAY)
     screen_draw_text(screen, f"Press Esc to exit ", 600, 15, 30, GRAY)
     if checkState:
