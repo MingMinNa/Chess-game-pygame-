@@ -25,19 +25,11 @@ pygame.display.set_icon(icon_surface)
 placeChessman_audio = pygame.mixer.Sound(os.path.join(dir_path, "audio", "placeChessman.mp3"))
 
 chessman_img = {"Black":dict(), "White":dict()}
-chessman_img["Black"]["King"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "King.png")).convert()
-chessman_img["Black"]["Queen"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Queen.png")).convert()
-chessman_img["Black"]["Pawn"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Pawn.png")).convert()
-chessman_img["Black"]["Knight"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Knight.png")).convert()
-chessman_img["Black"]["Bishop"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Bishop.png")).convert()
-chessman_img["Black"]["Rook"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Rook.png")).convert()
+chessman_type = ['King', 'Queen', 'Pawn', 'Knight', 'Bishop', 'Rook']
+for i, team in enumerate(['Black', 'White']):
+    for chessman in chessman_type:
+        chessman_img[team][chessman] = pygame.image.load(os.path.join(dir_path, "img","Game_img", chessman + str(i + 1) + ".png")).convert()
 
-chessman_img["White"]["King"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "King2.png")).convert()
-chessman_img["White"]["Queen"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Queen2.png")).convert()
-chessman_img["White"]["Pawn"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Pawn2.png")).convert()
-chessman_img["White"]["Knight"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Knight2.png")).convert()
-chessman_img["White"]["Bishop"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Bishop2.png")).convert()
-chessman_img["White"]["Rook"] = pygame.image.load(os.path.join(dir_path, "img","Game_img", "Rook2.png")).convert()
 
 
 
