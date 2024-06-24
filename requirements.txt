@@ -1,2 +1,2 @@
-pygame==2.5.2
-typing
+pygame==2.6.0
+typing==3.7.4.3
