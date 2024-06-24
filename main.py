@@ -33,6 +33,22 @@ for i, team in enumerate(['Black', 'White']):
 
 
 
+# initial_panel, press any to play game
+def screen_init() -> bool:
+    screen.fill(GREEN)
+    screen_draw_text(screen, "Chess Game", WIDTH // 2, HEIGHT // 2 - 80, 100, WHITE)
+    screen_draw_text(screen, "Press any to play", WIDTH // 2, HEIGHT // 2 + 20, 70, WHITE)
+    pygame.display.update()
+
+    while True: # waiting
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return True
+            elif event.type == pygame.KEYUP and event.key != pygame.K_ESCAPE:
+                return False
+
+
 # When chess game start, initialize all the variable
 def game_init() -> None:
     # chessboard spawn ("cells" is a List)
@@ -47,13 +63,6 @@ def game_init() -> None:
     chess_castling = {"White": [True, True, True], "Black": [True, True, True]}
     enemy_attack_area = []
     current_move = "White"
-
-
-# When you put the chessman down, this function will work
-def renew_choice():
-    global choice, move_area
-    move_area.clear()
-    choice = -1
 
 # When you haven't chosen the chessman, this function will be called first.
 # and it will return whether you pick the chessman
@@ -71,8 +80,15 @@ def choose_chesspiece() -> None:
             move_area = ret
             choice = existing_chess[current_move].index(chess)
 
+
+# When you put the chessman down, this function will work
+def renew_choice():
+    global choice, move_area
+    move_area.clear()
+    choice = -1
+
 # If you choose the next moval and the position is enemy, then remove the enemy from black(white)_chess and kill sprite
-def killEnemy(current_move:str, move_area:Tuple[int], mouse_cell_pos:Tuple[int]) -> None:
+def killEnemy(current_move:str, mouse_cell_pos:Tuple[int]) -> None:
     global existing_chess
     enemy_color = "Black" if current_move == "White" else "White"
 
@@ -96,7 +112,6 @@ def killEnemy(current_move:str, move_area:Tuple[int], mouse_cell_pos:Tuple[int])
             return
             
     raise Exception("enemy_idx Error")
-
 
 # calculate the enemy attack area so that the king can't choose those cells to kill itself
 def calculate_EnemyAttackArea(enemy_attack_area:list[Tuple[int]], existing_chess:Mapping[str, list["Chesspiece"]], current_move:str, cells: Sequence["BoardCell"]) -> None:
@@ -131,7 +146,6 @@ def KingInAttackArea(enemy_attack_area:list[Tuple[int]], current_move:str, exist
     if kingPos == (-1, -1) or kingPos not in enemy_attack_area:
         return False
     return True
-
 
 # When you move king, check whether your choice is Castling. If yes, move the Rook, or nothing happen
 def checkCastlingClick( existing_chess: Mapping[str, Sequence["Chesspiece"]], cells:Sequence["BoardCell"], mouse_cell_pos:Tuple[int]) -> None:
@@ -195,21 +209,6 @@ def game_end(winner:str) -> None:
             elif event.type == pygame.KEYUP:
                 return
              
-# initial_panel, press any to play game
-def init_screen() -> bool:
-    screen.fill(GREEN)
-    screen_draw_text(screen, "Chess Game", WIDTH // 2, HEIGHT // 2 - 80, 100, WHITE)
-    screen_draw_text(screen, "Press any to play", WIDTH // 2, HEIGHT // 2 + 20, 70, WHITE)
-    pygame.display.update()
-
-    while True: # waiting
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return True
-            elif event.type == pygame.KEYUP:
-                return False
-
 def screen_draw_text(screen:"pygame.Surface", text:str, center_x:int, center_y:int, fontSize:int, Fontcolor:Tuple[int]) -> None:
     font = pygame.font.Font(None, fontSize)
     text_surface = font.render(f"{text}", True, Fontcolor)
@@ -220,7 +219,7 @@ def screen_draw_text(screen:"pygame.Surface", text:str, center_x:int, center_y:i
 while running:
     clock.tick(FPS)
     if init is True:
-        close = init_screen()
+        close = screen_init()
         if close:break
         game_init() # game start
         init = False
@@ -241,7 +240,7 @@ while running:
                     if  existing_chess[current_move][choice].en_passant >= 0 and \
                         abs(cell_x - pawn_cell_x) == 1 and \
                         cells[cell_x  + CELL_Col_Cnt * cell_y].state == CELL_STATE["Nothing"]:
-                        killEnemy(current_move, move_area, (cell_x, cell_y + 1))
+                        killEnemy(current_move,(cell_x, cell_y + 1))
                         if running is False: break 
                         elif init is True : continue
                     # The second case: first step (move 2 cell) => then we set the left(right) enemy pawn en_passant (if any)
@@ -254,7 +253,7 @@ while running:
 
                  # If the cell you click has enemy, kill it
                 if cells[cell_x + cell_y * CELL_Col_Cnt].state != CELL_STATE["Nothing"]:
-                    killEnemy(current_move, move_area, (cell_x, cell_y))
+                    killEnemy(current_move, (cell_x, cell_y))
                     # When promotion and kill King occur at the same time, it will show
                     # game end text ("Player {} is winner") and promotion panel.
                     # Therefore, check whether the game is end (init is True) before showing the promotion panel 
