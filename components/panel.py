@@ -9,7 +9,7 @@ from components.boardcell import *
 class PanelChess(pygame.sprite.Sprite):
     def __init__(self, x:int, y:int, size:int, color:str, chesskind:str, chessman_img:Mapping[str, Mapping[str,"pygame.Surface"]]) -> None:
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(chessman_img[color][chesskind], (CHESS_SideLength, CHESS_SideLength))
+        self.image = pygame.transform.scale(chessman_img[color][chesskind], (CHESS_SIDE_LENGTH, CHESS_SIDE_LENGTH))
         self.image.set_colorkey(RED)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -25,5 +25,5 @@ class Panel(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = PANEL_INIT_X
         self.rect.y = PANEL_INIT_Y
-        self.chessman = [ PanelChess(170 + (100 * i), 300 , CHESS_SideLength, color, chesskind[i], chessman_img) for i in range(len(chesskind))]
+        self.chessman = [ PanelChess(170 + (100 * i), 300 , CHESS_SIDE_LENGTH, color, chesskind[i], chessman_img) for i in range(len(chesskind))]
         
