@@ -41,15 +41,15 @@ def screen_init() -> bool:
     screen = pygame.display.set_mode((INIT_WIDTH, INIT_HEIGHT))
     pygame.display.set_icon(scaled_icon)
 
-    screen.blit(scaled_background, (0, 0))
-    screen_draw_text(screen, "Chess Game", INIT_WIDTH // 2 + 3, INIT_HEIGHT // 2 - 80 + 3, 100, WHITE)
-    screen_draw_text(screen, "Press any to play", INIT_WIDTH // 2 + 3, INIT_HEIGHT // 2 + 20 + 3, 70, WHITE)
-    screen_draw_text(screen, "Chess Game", INIT_WIDTH // 2, INIT_HEIGHT // 2 - 80, 100, BLACK)
-    screen_draw_text(screen, "Press any to play", INIT_WIDTH // 2, INIT_HEIGHT // 2 + 20, 70, BLACK)
-    pygame.display.update()
 
     while True: # waiting
         clock.tick(FPS)
+        screen.blit(scaled_background, (0, 0))
+        screen_draw_text(screen, "Chess Game", INIT_WIDTH // 2 + 3, INIT_HEIGHT // 2 - 80 + 3, 100, WHITE)
+        screen_draw_text(screen, "Press any to play", INIT_WIDTH // 2 + 3, INIT_HEIGHT // 2 + 20 + 3, 70, WHITE)
+        screen_draw_text(screen, "Chess Game", INIT_WIDTH // 2, INIT_HEIGHT // 2 - 80, 100, BLACK)
+        screen_draw_text(screen, "Press any to play", INIT_WIDTH // 2, INIT_HEIGHT // 2 + 20, 70, BLACK)
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
